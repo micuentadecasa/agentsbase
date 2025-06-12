@@ -201,6 +201,3 @@ cython_debug/
 
 backend/.langgraph_api
 
-backend_gen/*.*
-docs/instructions/*.*
-tasks/*.*
