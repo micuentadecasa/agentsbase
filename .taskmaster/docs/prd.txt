@@ -1,0 +1,20 @@
+Project Title: LLM Question Answering Agent
+
+Overview:
+This project aims to build an autonomous agent capable of receiving a question, invoking a large language model (LLM) to generate an answer, and returning the answer to the user. The agent should be robust, modular, and follow best practices for minimal node architecture as described in the blueprint.
+
+Objectives:
+- Accept user questions as input
+- Use an LLM to generate answers
+- Return the generated answer to the user
+- Ensure modular, testable, and maintainable code
+
+Key Features:
+- Minimal node architecture (action and validation nodes)
+- LLM integration for answer generation
+- Validation of module structure, package installation, and graph compilation
+
+Success Criteria:
+- The agent can answer arbitrary questions using the LLM
+- All validations pass (module structure, package install, graph compilation)
+- The solution adheres to the blueprint and prompt guidelines 

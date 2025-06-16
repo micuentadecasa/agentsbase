@@ -201,6 +201,20 @@ cython_debug/
 
 backend/.langgraph_api
 
-backend_gen/*.*
+backend_gen/
 docs/instructions/*.*
 tasks/*.*
+.roo/
+.cursor/
+
+# Added by Task Master AI
+dev-debug.log
+# Dependency directories
+# Environment variables
+# Editor directories and files
+.idea
+.vscode
+# OS specific
+# Task files
+tasks.json
+tasks/ 
