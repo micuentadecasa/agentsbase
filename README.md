@@ -2,7 +2,7 @@
 
 # agents generator
 
-insert the business case at the end of /docs/planning.md
+insert the business case at the end of /docs/planning.md, or /docs/planning_agents.md
 
 execute the /docs/planning.md with an agentic ide and it will create the agents in teh backend_gen folder
 
