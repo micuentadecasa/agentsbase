@@ -2,7 +2,118 @@
 
 ---
 
-> **Purpose of this document** – Provide a comprehensive, structured guide for autonomous AI agents to develop LangGraph applications with clear execution phases, validation checkpoints, and error recovery patterns.
+> **Purpose of this document** – Provide a comprehensive, structured guide for autonomous AI agents to develop LangGraph applications with clear execution phases, validation checkpoints, and error recovery patterns. Execute 10 iterative business cases to build a robust knowledge base of solutions and patterns.
+
+---
+
+## 0. ITERATIVE BUSINESS CASE EXECUTION PROTOCOL
+
+### Master Execution Loop
+**Execute 10 complete business case iterations** to build comprehensive knowledge base **AUTONOMOUSLY, WITHOUT USER CONFIRMATION AT ANY STEP**:
+
+1. **Business Case Generation Phase**
+   - Think creatively about a new agentic business case
+   - Ensure each case explores different patterns (see variety matrix below)
+   - Document the business case rationale and expected challenges
+   - Create `/tasks/iteration_X_business_case.md` with detailed specification
+
+2. **Implementation Phase**
+   - Follow standard execution phases (0-3) for the business case
+   - Apply lessons learned from `/docs/tips.md` proactively
+   - Document new patterns and solutions discovered
+
+3. **Error Learning Phase**
+   - Every time an error is encountered and fixed, update `/docs/tips.md`
+   - Follow the Enhanced Tips Format (see section 0.2)
+   - Review existing tips before writing new code or tests
+
+4. **Knowledge Accumulation Phase**
+   - After each iteration, update `/docs/patterns_learned.md`
+   - Document successful architectural decisions
+   - Note business case complexity vs implementation patterns
+
+for each round and for each phase write a file in /tasks indicating the steps that have to be done and the instructions for each specific phase, and then follow what that file says. Include all the examples of code or tips for each phase in the file.
+
+### Business Case Variety Matrix
+Ensure coverage across these dimensions over 10 iterations:
+
+| Dimension | Options | Target Coverage |
+|-----------|---------|----------------|
+| **Domain** | Healthcare, Finance, Education, E-commerce, Legal, Manufacturing, Research, Content, Operations | ≥7 domains |
+| **Agent Count** | 2, 3, 4-6, 7+ | All ranges |
+| **Architecture** | Monolithic, Supervisor, Hierarchical, Network, Custom | All types |
+| **Data Sources** | APIs, Files, Databases, Web scraping, User input | ≥4 sources |
+| **Output Types** | Text, Files, API calls, Database updates, Notifications | ≥4 types |
+| **Complexity** | Simple linear, Conditional branching, Loops, Error recovery, Human-in-loop | All levels |
+
+### Enhanced Tips Format
+When updating `/docs/tips.md`, use this structured format:
+
+```markdown
+## TIP #[NUMBER]: [Short Descriptive Title]
+
+**Category**: [Architecture|Testing|Deployment|Development|Integration]
+**Severity**: [Critical|High|Medium|Low]
+**Business Context**: [When this typically occurs]
+
+### Problem Description
+[Detailed description of the issue, including symptoms and context]
+
+### Root Cause Analysis
+[Why this error occurs, underlying technical reasons]
+
+### Solution Implementation
+```[language]
+[Step-by-step code solution with complete examples]
+```
+
+### Prevention Strategy
+[How to avoid this issue in future implementations]
+
+### Testing Approach
+[How to test for this issue and verify the fix]
+
+### Related Tips
+[Links to other tips that are related: #[TIP_NUMBER]]
+
+### Business Impact
+[How this issue affects different types of business cases]
+
+---
+```
+
+### Tips Consultation Protocol
+**MANDATORY**: Before writing any code or tests, consult `/docs/tips.md`:
+
+1. **Pre-Code Review**: Check tips related to the component being implemented
+2. **Error Pattern Matching**: When an error occurs, first check if it's documented
+3. **Solution Application**: Apply documented solutions before creating new ones
+4. **Pattern Recognition**: Identify if the current business case matches previous patterns
+
+### Iteration Tracking
+Maintain `/tasks/iteration_progress.md`:
+
+```markdown
+# Business Case Iteration Progress
+
+## Iteration 1: [Business Case Name]
+- **Status**: [Planned|In Progress|Testing|Complete|Failed]
+- **Domain**: [Domain name]
+- **Architecture**: [Architecture type]
+- **Agent Count**: [Number]
+- **Key Challenges**: [List of expected/encountered challenges]
+- **Tips Generated**: [List of tip numbers created]
+- **Completion Date**: [Date if complete]
+
+[Repeat for iterations 2-10]
+
+## Summary Statistics
+- **Completed Iterations**: X/10
+- **Total Tips Generated**: [Number]
+- **Architecture Types Covered**: [List]
+- **Domains Explored**: [List]
+- **Most Common Error Categories**: [List]
+```
 
 ---
 
@@ -13,34 +124,71 @@
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| **Autonomy Level** | Full | No user confirmation required after initial start |
+| **Autonomy Level** | Full | No user confirmation required after initial start. **All phases proceed automatically without waiting for approval.** |
 | **State Tracking** | File-system only | All progress tracked through files |
-| **Error Handling** | Self-correcting | Must fix errors and document solutions |
+| **Error Handling** | Self-correcting + Learning | Must fix errors, document solutions, and apply lessons |
 | **Completion Standard** | Production-ready | All code must pass tests and run without errors |
+| **Learning Protocol** | Iterative accumulation | Build knowledge base over 10 business case iterations |
 
 ### Mission Statement
-Orchestrate and execute the development of a LangGraph application based on provided documentation **fully autonomously**, ensuring:
-- Complete blueprint compliance
-- Robust error handling and recovery
+Orchestrate and execute the development of 10 different LangGraph applications based on generated business cases **fully autonomously, with no user confirmation or intervention required at any step**, ensuring:
+- Complete blueprint compliance for each iteration
+- Robust error handling and recovery with documented solutions
 - Comprehensive testing and validation
 - Production-ready deployment artifacts
+- Continuous knowledge accumulation in `/docs/tips.md`
 
 ### Available Tools
 - `read_file` - Read existing files
 - `write_file` - Create/modify files
 - `execute_shell_command` - Run terminal commands
-- File system operations for project management
+- when using files with formats like docx, powerpoint, pdf , etc  create tools using this library in the tools https://github.com/MaximeRivest/attachments
 
 ---
 
 ## 2. EXECUTION PHASES & SUCCESS CRITERIA
 
+### Phase -1: Business Case Generation (NEW)
+**Objective**: Generate creative, diverse business case for current iteration
+**Success Criteria**:
+- Business case documented in `/tasks/iteration_X_business_case.md`
+- Case fits variety matrix requirements
+- Clear agent roles and responsibilities defined
+- Expected technical challenges identified
+- Success metrics established
+
+**Business Case Template**:
+```markdown
+# Iteration [X] Business Case: [Title]
+
+## Business Problem
+[What real-world problem does this solve?]
+
+## Proposed Agent Architecture
+- **Agent 1**: [Name] - [Role and responsibilities]
+- **Agent 2**: [Name] - [Role and responsibilities]
+- **Agent N**: [Name] - [Role and responsibilities]
+
+## Data Flow
+[How information flows between agents]
+
+## Expected Technical Challenges
+[What difficulties do you anticipate?]
+
+## Success Criteria
+[How will you know this works?]
+
+## Business Value
+[Why would someone use this system?]
+```
+
 ### Phase 0: Workspace Initialization
-**Objective**: Clean slate preparation
+**Objective**: Clean slate preparation with tips consultation. **This phase and all subsequent phases proceed automatically, without user confirmation.**
 **Success Criteria**: 
 - `/tasks` directory completely reset
 - `/backend_gen` directory completely reset
 - `/backend/` successfully copied to `/backend_gen/`
+- Tips reviewed and architectural patterns identified
 - Environment validated and ready
 
 **Validation Commands**:
@@ -50,24 +198,26 @@ ls -la /backend_gen  # Should contain copied backend structure
 ```
 
 ### Phase 1: Architecture Planning & Specification
-**Objective**: Complete project specification before any implementation
+**Objective**: Complete project specification before any implementation, incorporating lessons learned. **This phase proceeds automatically after workspace initialization, with no user confirmation required.**
 **Success Criteria**:
+- Tips consultation completed and relevant patterns identified
 - All documentation internalized and understood
 - `/tasks/01_define-graph-spec.md` created with detailed execution plan
 - `/tasks/artifacts/graph_spec.yaml` generated with complete architecture
 - Business case framing completed
-- Testing strategy defined
+- Testing strategy defined incorporating known error patterns
 
 **Critical Rule**: NO implementation code until this phase is 100% complete
 
 ### Phase 2: Implementation & Code Generation
-**Objective**: Generate all required code components
+**Objective**: Generate all required code components using accumulated knowledge. **This phase starts automatically after planning, with no user confirmation required.**
 **Success Criteria**:
 - All mandatory files created under `/backend_gen/src/agent/`
 - LLM integration properly configured
 - All nodes follow MANDATORY LLM Call Pattern
-- Graph assembly completed
+- Graph assembly completed using best practices from tips
 - Import validation successful
+- Known error patterns proactively avoided
 
 **Mandatory Files Checklist**:
 - [ ] `state.py` - OverallState TypedDict
@@ -81,24 +231,34 @@ ls -la /backend_gen  # Should contain copied backend structure
 - [ ] `tests/test_schemas.py` - Pydantic model tests
 
 ### Phase 3: Testing & Validation
-**Objective**: Comprehensive testing and error resolution
+**Objective**: Comprehensive testing and error resolution with knowledge capture. **This phase is entered automatically after implementation, with no user confirmation required.**
 **Success Criteria**:
 - Graph compiles without errors
 - Direct Python testing passes
 - API testing via langgraph dev succeeds
 - All test scenarios validated
 - Server logs show no errors
+- New errors documented in tips.md with proper format
 
 ---
 
 ## 3. CORE PRINCIPLES & NON-NEGOTIABLES
 
 ### Architectural Principles
-1. **Planning First** - No implementation until complete planning phase
-2. **Blueprint Compliance** - Every artifact must conform to `/docs/blueprint_backend.md`
-3. **Full Autonomy** - Proceed without user interaction once plan exists
-4. **Error Documentation** - Every error must be logged with solution in `/docs/tips.md`
-5. **Router Rule** - Only router returns sentinel strings; nodes return dict, NOTHING, or raise
+1. **Business Case Diversity** - Each iteration explores different patterns and domains
+2. **Learning Integration** - Apply accumulated knowledge from previous iterations
+3. **Planning First** - No implementation until complete planning phase
+4. **Blueprint Compliance** - Every artifact must conform to `/docs/blueprint_backend.md`
+5. **Full Autonomy** - Proceed without user interaction once plan exists
+6. **Enhanced Error Documentation** - Every error must be logged with Enhanced Tips Format in `/docs/tips.md`
+7. **Router Rule** - Only router returns sentinel strings; nodes return dict, NOTHING, or raise
+
+### Knowledge Management Principles
+1. **Tips Consultation** - Always review relevant tips before implementation
+2. **Pattern Recognition** - Identify when current case matches documented patterns
+3. **Solution Reuse** - Apply documented solutions before creating new ones
+4. **Continuous Learning** - Each error teaches us something valuable
+5. **Structured Documentation** - Follow Enhanced Tips Format consistently
 
 ### Technical Standards
 1. **Environment Handling**:
@@ -125,9 +285,26 @@ ls -la /backend_gen  # Should contain copied backend structure
 ### Pre-Execution Checklist
 Before starting any phase, verify:
 - [ ] All required documentation is accessible
+- [ ] `/docs/tips.md` has been reviewed for relevant patterns
+- [ ] Current iteration's business case is clearly defined
 - [ ] Environment variables are properly configured
 - [ ] Previous phase completion criteria are met
-- [ ] Error ledger (`/docs/tips.md`) has been reviewed
+- [ ] Error ledger (`/docs/tips.md`) has been consulted
+
+### Phase -1: Business Case Generation
+```bash
+# 1. Review iteration progress
+cat /tasks/iteration_progress.md
+
+# 2. Check variety matrix coverage
+# [Review completed business cases and identify gaps]
+
+# 3. Generate new business case
+# [Create iteration_X_business_case.md with unique scenario]
+
+# 4. Update iteration progress
+# [Mark new iteration as planned]
+```
 
 ### Phase 0: Workspace Initialization
 ```bash
@@ -143,24 +320,35 @@ cp -r /backend /backend_gen
 
 # 4. Verify structure
 ls -la /backend_gen/src/agent/
+
+# 5. Install dependencies
+cd /backend_gen && pip install -e .
 ```
 remember to run pip install -e . in the backend_gen directory.
 
 ### Phase 1: Node Specification & Flow Design
 
-#### 1.1 Documentation Internalization
+#### 1.1 Tips Consultation (NEW)
+- Read `/docs/tips.md` completely
+- Identify tips relevant to current business case
+- Note architectural patterns that apply
+- Plan implementation to avoid documented pitfalls
+
+#### 1.2 Documentation Internalization
 - Read and understand all provided documentation
 - Identify key requirements and constraints
 - Map business requirements to technical architecture
+- Consider lessons learned from previous iterations
 
-#### 1.2 Task Definition
+#### 1.3 Task Definition
 Create `/tasks/01_define-graph-spec.md` with:
-- Detailed task description
+- Detailed task description incorporating tips insights
 - Expected outputs
 - Validation criteria
 - Dependencies
+- Risk mitigation based on documented errors
 
-#### 1.3 Architecture Specification
+#### 1.4 Architecture Specification
 Generate `/tasks/artifacts/graph_spec.yaml` following the Business-Case Checklist:
 
 **Required Sections**:
@@ -170,7 +358,7 @@ Generate `/tasks/artifacts/graph_spec.yaml` following the Business-Case Checklis
    - Architecture choice (centralized vs distributed)
    - External API requirements
    - Data flow mapping
-   - Testing strategy
+   - Testing strategy incorporating known error patterns
 
 2. **Architecture Selection**
    Use the decision table to choose:
@@ -194,10 +382,24 @@ Generate `/tasks/artifacts/graph_spec.yaml` following the Business-Case Checklis
    - Unit test scenarios
    - Integration test patterns
    - API test specifications
+   - Error scenarios from tips.md
+
+6. **Risk Mitigation Plan (NEW)**
+   - Identified risks from tips.md
+   - Prevention strategies
+   - Testing approaches for known error patterns
 
 ### Phase 2: Direct Code Implementation
 
-#### 2.1 State Definition
+#### 2.1 Pre-Implementation Tips Review
+**MANDATORY**: Before writing any code, review relevant tips:
+```bash
+# Search for relevant tips by category
+grep -n "Category.*Architecture" /docs/tips.md
+grep -n "Category.*Development" /docs/tips.md
+```
+
+#### 2.2 State Definition
 **File**: `/backend_gen/src/agent/state.py`
 ```python
 from typing_extensions import TypedDict
@@ -209,40 +411,47 @@ class OverallState(TypedDict):
     # Add other state fields as needed
 ```
 
-#### 2.2 Tools and Schemas
+#### 2.3 Tools and Schemas
 **File**: `/backend_gen/src/agent/tools_and_schemas.py`
 - Pydantic models for data validation
 - Tool wrapper functions
 - Schema definitions for LLM interactions
 
-#### 2.3 Node Implementation
+#### 2.4 Node Implementation
 **Directory**: `/backend_gen/src/agent/nodes/`
 
-**MANDATORY LLM Call Pattern**:
+**MANDATORY LLM Call Pattern (Real Example)**:
 ```python
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
+from agent.state import OverallState
 
-def node_function(state: OverallState) -> Dict[str, Any]:
-    # Initialize LLM with proper configuration
+def node_function(state: OverallState) -> dict:
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.0-flash-exp",  # or from config
         temperature=0,  # For deterministic responses
         max_retries=2,
         api_key=os.getenv("GEMINI_API_KEY"),
     )
-    
-    # Implement node logic
-    # Return proper dict or raise exception
-    return {"updated_field": "value"}
+    # Example: Format a prompt using state
+    prompt = f"Schedule appointment for {state['patient_info']['name']} with available doctors."
+    # Call the LLM (unstructured output)
+    result = llm.invoke(prompt)
+    # Optionally, for structured output:
+    # structured_llm = llm.with_structured_output(MyPydanticSchema)
+    # result = structured_llm.invoke(prompt)
+    # Update state with LLM result
+    state["messages"].append({"role": "agent", "content": result.content})
+    return state
 ```
 
-#### 2.4 Graph Assembly
+#### 2.5 Graph Assembly
 **File**: `/backend_gen/src/agent/graph.py`
 ```python
 from langgraph.graph import StateGraph, START, END
-from .state import OverallState
-from .nodes import node1, node2, router
+# Use absolute imports to prevent issues with the langgraph dev server
+from agent.state import OverallState
+from agent.nodes import node1, node2, router
 
 def build_graph():
     builder = StateGraph(OverallState)
@@ -260,7 +469,7 @@ def build_graph():
     
     return builder.compile()
 
-# Important: Instantiate the graph
+# CRITICAL: Instantiate the graph
 graph = build_graph()
 ```
 
@@ -271,364 +480,415 @@ Create comprehensive unit tests for each component:
 
 **File**: `/backend_gen/tests/test_agents.py`
 ```python
+# NOTE: Unit tests should use real LLM calls, real file access, and real code execution wherever possible.
+# See the node implementation for actual LLM usage.
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from agent.nodes.prompt_enhancer import prompt_enhancer_node
-from agent.nodes.answer_generator import answer_generator_node
+import os
+from agent.nodes.patient_intake import patient_intake_node
+from agent.nodes.doctor_availability import doctor_availability_node
+from agent.nodes.scheduler import scheduler_node
 from agent.state import OverallState
 
-class TestPromptEnhancerAgent:
-    """Unit tests for the prompt enhancer agent"""
+class TestPatientIntakeAgent:
+    """Unit tests for the patient intake agent"""
     
     def setup_method(self):
         """Setup test data for each test"""
         self.base_state = {
-            "messages": [{"role": "human", "content": "What is AI?"}],
-            "original_question": "What is AI?",
-            "enhanced_prompt": None,
-            "final_answer": None
+            "messages": [{"role": "human", "content": "I need an appointment for a headache"}],
+            "patient_info": None,
+            "appointment_request": None,
+            "doctor_schedules": None,
+            "scheduled_appointment": None,
+            "errors": None
         }
     
-    @patch('agent.nodes.prompt_enhancer.ChatGoogleGenerativeAI')
-    def test_prompt_enhancer_basic_functionality(self, mock_llm_class):
-        """Test basic prompt enhancement functionality"""
-        # Mock LLM response
-        mock_llm = Mock()
-        mock_response = Mock()
-        mock_response.content = "Enhanced question: What is artificial intelligence and how does it work?"
-        mock_llm.invoke.return_value = mock_response
-        mock_llm_class.return_value = mock_llm
-        
-        # Execute agent
-        result = prompt_enhancer_node(self.base_state)
+    def test_patient_intake_basic_functionality(self):
+        """Test basic patient intake functionality with real LLM"""
+        # Execute agent with real LLM call
+        result = patient_intake_node(self.base_state)
         
         # Validate results
         assert result is not None
-        assert "enhanced_prompt" in result
-        assert result["enhanced_prompt"] is not None
-        assert len(result["enhanced_prompt"]) > len(self.base_state["original_question"])
-        
-        # Verify LLM was called correctly
-        mock_llm_class.assert_called_once()
-        mock_llm.invoke.assert_called_once()
+        assert "patient_info" in result
+        assert result["patient_info"] is not None
+        assert "name" in result["patient_info"]
+        assert "contact" in result["patient_info"]
     
-    @patch('agent.nodes.prompt_enhancer.ChatGoogleGenerativeAI')
-    def test_prompt_enhancer_error_handling(self, mock_llm_class):
-        """Test error handling when LLM fails"""
-        # Mock LLM to raise exception
-        mock_llm = Mock()
-        mock_llm.invoke.side_effect = Exception("API Error")
-        mock_llm_class.return_value = mock_llm
+    def test_patient_intake_error_handling(self):
+        """Test error handling when input is invalid"""
+        empty_state = {"messages": []}
         
-        # Execute agent and expect proper error handling
-        with pytest.raises(Exception) or pytest.warns(UserWarning):
-            result = prompt_enhancer_node(self.base_state)
-            # If no exception, should have fallback behavior
-            if result:
-                assert "enhanced_prompt" in result
-    
-    def test_prompt_enhancer_input_validation(self):
-        """Test input validation and edge cases"""
-        # Test with empty question
-        empty_state = self.base_state.copy()
-        empty_state["original_question"] = ""
-        
-        # Should handle gracefully
-        with patch('agent.nodes.prompt_enhancer.ChatGoogleGenerativeAI'):
-            result = prompt_enhancer_node(empty_state)
-            assert result is not None
-        
-        # Test with very long question
-        long_state = self.base_state.copy()
-        long_state["original_question"] = "What is AI? " * 1000
-        
-        with patch('agent.nodes.prompt_enhancer.ChatGoogleGenerativeAI'):
-            result = prompt_enhancer_node(long_state)
-            assert result is not None
+        # Execute agent and check error handling
+        result = patient_intake_node(empty_state)
+        # Should handle gracefully or provide meaningful errors
+        assert result is not None
 
-class TestAnswerGeneratorAgent:
-    """Unit tests for the answer generator agent"""
+class TestDoctorAvailabilityAgent:
+    """Unit tests for the doctor availability agent"""
     
     def setup_method(self):
         """Setup test data for each test"""
         self.base_state = {
-            "messages": [{"role": "human", "content": "What is AI?"}],
-            "original_question": "What is AI?",
-            "enhanced_prompt": "What is artificial intelligence and how does it work?",
-            "final_answer": None
+            "messages": [{"role": "human", "content": "Need to check doctor availability"}],
+            "patient_info": {"name": "John Doe", "age": 35, "contact": "john@example.com"},
+            "doctor_schedules": None,
+            "errors": None
         }
     
-    @patch('agent.nodes.answer_generator.ChatGoogleGenerativeAI')
-    def test_answer_generator_basic_functionality(self, mock_llm_class):
-        """Test basic answer generation functionality"""
-        # Mock LLM response
-        mock_llm = Mock()
-        mock_response = Mock()
-        mock_response.content = "Artificial Intelligence (AI) is a comprehensive field..."
-        mock_llm.invoke.return_value = mock_response
-        mock_llm_class.return_value = mock_llm
-        
-        # Execute agent
-        result = answer_generator_node(self.base_state)
+    def test_doctor_availability_basic_functionality(self):
+        """Test basic doctor availability functionality with real data"""
+        # Execute agent with real data aggregation
+        result = doctor_availability_node(self.base_state)
         
         # Validate results
         assert result is not None
-        assert "final_answer" in result
-        assert result["final_answer"] is not None
-        assert len(result["final_answer"]) > 0
+        assert "doctor_schedules" in result
+        assert result["doctor_schedules"] is not None
+        assert len(result["doctor_schedules"]) > 0
         
-        # Verify LLM was called with enhanced prompt
-        mock_llm_class.assert_called_once()
-        mock_llm.invoke.assert_called_once()
+        # Check schedule structure
+        for schedule in result["doctor_schedules"]:
+            assert "doctor_name" in schedule
+            assert "specialty" in schedule
+            assert "available_slots" in schedule
+
+class TestSchedulerAgent:
+    """Unit tests for the scheduler agent"""
     
-    @patch('agent.nodes.answer_generator.ChatGoogleGenerativeAI')
-    def test_answer_generator_quality_validation(self, mock_llm_class):
-        """Test answer quality validation"""
-        # Mock high-quality response
-        mock_llm = Mock()
-        mock_response = Mock()
-        mock_response.content = "A comprehensive answer with detailed explanation..."
-        mock_llm.invoke.return_value = mock_response
-        mock_llm_class.return_value = mock_llm
+    def setup_method(self):
+        """Setup test data for each test"""
+        self.base_state = {
+            "messages": [{"role": "human", "content": "Schedule my appointment"}],
+            "patient_info": {"name": "John Doe", "age": 35, "contact": "john@example.com"},
+            "doctor_schedules": [
+                {
+                    "doctor_name": "Dr. Smith",
+                    "specialty": "General Medicine",
+                    "available_slots": [{"date": "2024-07-01", "time": "10:00"}]
+                }
+            ],
+            "scheduled_appointment": None,
+            "errors": None
+        }
+    
+    def test_scheduler_basic_functionality(self):
+        """Test basic scheduling functionality with real matching logic"""
+        # Execute agent with real scheduling logic
+        result = scheduler_node(self.base_state)
         
-        result = answer_generator_node(self.base_state)
+        # Validate results
+        assert result is not None
+        assert "scheduled_appointment" in result
+        assert result["scheduled_appointment"] is not None
         
-        # Validate answer quality metrics
-        assert len(result["final_answer"]) > 20  # Minimum length
-        assert "." in result["final_answer"]  # Contains sentences
-        
-    def test_answer_generator_missing_enhanced_prompt(self):
-        """Test behavior when enhanced prompt is missing"""
-        state_no_prompt = self.base_state.copy()
-        state_no_prompt["enhanced_prompt"] = None
-        
-        with patch('agent.nodes.answer_generator.ChatGoogleGenerativeAI'):
-            # Should handle gracefully, possibly use original question
-            result = answer_generator_node(state_no_prompt)
-            assert result is not None
-            assert "final_answer" in result
+        # Check appointment structure
+        appointment = result["scheduled_appointment"]
+        assert "patient_name" in appointment
+        assert "doctor_name" in appointment
+        assert "date" in appointment
+        assert "time" in appointment
+        assert "status" in appointment
 ```
 
 **File**: `/backend_gen/tests/test_tools.py`
 ```python
+# NOTE: Unit tests should use real LLM calls, real file access, and real code execution wherever possible.
+# See the node implementation for actual LLM usage.
+
 import pytest
-from unittest.mock import Mock, patch
+import os
 from agent.tools_and_schemas import (
-    EnhancePromptTool, 
-    GenerateAnswerTool,
-    QuestionSchema,
-    AnswerSchema
+    validate_patient_info, 
+    validate_appointment_request,
+    validate_doctor_schedule,
+    confirm_appointment
 )
 
 class TestToolFunctionality:
-    """Test individual tool operations"""
+    """Test individual tool operations with real data"""
     
-    def test_enhance_prompt_tool_structure(self):
-        """Test prompt enhancement tool structure"""
-        tool = EnhancePromptTool()
+    def test_validate_patient_info_real_data(self):
+        """Test patient info validation with real data"""
+        valid_info = {
+            "name": "John Doe",
+            "age": 35,
+            "contact": "john@example.com",
+            "symptoms": "Headache"
+        }
         
-        # Validate tool attributes
-        assert hasattr(tool, 'name')
-        assert hasattr(tool, 'description')
-        assert callable(tool.func) if hasattr(tool, 'func') else True
+        result = validate_patient_info(valid_info)
+        assert result is True
+        
+        invalid_info = {
+            "name": "",  # Invalid empty name
+            "age": "not_a_number",  # Invalid age
+            "contact": "invalid_email"
+        }
+        
+        result = validate_patient_info(invalid_info)
+        assert result is False
     
-    @patch('agent.tools_and_schemas.ChatGoogleGenerativeAI')
-    def test_enhance_prompt_tool_execution(self, mock_llm_class):
-        """Test prompt enhancement tool execution"""
-        # Mock LLM
-        mock_llm = Mock()
-        mock_response = Mock()
-        mock_response.content = "Enhanced: What is AI and its applications?"
-        mock_llm.invoke.return_value = mock_response
-        mock_llm_class.return_value = mock_llm
+    def test_validate_appointment_request_real_data(self):
+        """Test appointment request validation with real data"""
+        valid_request = {
+            "patient_name": "John Doe",
+            "requested_date": "2024-07-01",
+            "requested_time": "10:00",
+            "doctor_specialty": "General Medicine"
+        }
         
-        # Execute tool
-        tool = EnhancePromptTool()
-        if hasattr(tool, 'func'):
-            result = tool.func("What is AI?")
-            assert result is not None
-            assert len(result) > 0
+        result = validate_appointment_request(valid_request)
+        assert result is True
     
-    def test_generate_answer_tool_structure(self):
-        """Test answer generation tool structure"""
-        tool = GenerateAnswerTool()
+    def test_validate_doctor_schedule_real_data(self):
+        """Test doctor schedule validation with real data"""
+        valid_schedule = {
+            "doctor_name": "Dr. Smith",
+            "specialty": "General Medicine",
+            "available_slots": [
+                {"date": "2024-07-01", "time": "10:00"},
+                {"date": "2024-07-01", "time": "11:00"}
+            ]
+        }
         
-        # Validate tool attributes
-        assert hasattr(tool, 'name')
-        assert hasattr(tool, 'description')
-        assert callable(tool.func) if hasattr(tool, 'func') else True
+        result = validate_doctor_schedule(valid_schedule)
+        assert result is True
     
-    @patch('agent.tools_and_schemas.ChatGoogleGenerativeAI')
-    def test_generate_answer_tool_execution(self, mock_llm_class):
-        """Test answer generation tool execution"""
-        # Mock LLM
-        mock_llm = Mock()
-        mock_response = Mock()
-        mock_response.content = "AI is a field of computer science..."
-        mock_llm.invoke.return_value = mock_response
-        mock_llm_class.return_value = mock_llm
+    def test_confirm_appointment_real_data(self):
+        """Test appointment confirmation with real data"""
+        valid_confirmation = {
+            "patient_name": "John Doe",
+            "doctor_name": "Dr. Smith",
+            "date": "2024-07-01",
+            "time": "10:00",
+            "status": "confirmed"
+        }
         
-        # Execute tool
-        tool = GenerateAnswerTool()
-        if hasattr(tool, 'func'):
-            result = tool.func("What is artificial intelligence?")
-            assert result is not None
-            assert len(result) > 0
+        result = confirm_appointment(valid_confirmation)
+        assert result is True
 
-class TestToolIntegration:
-    """Test tool integration with agents"""
+class TestFileOperations:
+    """Test file operations with real file access"""
     
-    def test_tools_available_to_agents(self):
-        """Verify agents can access their required tools"""
-        from agent.nodes.prompt_enhancer import prompt_enhancer_node
-        from agent.nodes.answer_generator import answer_generator_node
+    def test_read_doctor_schedule_from_file(self):
+        """Test reading doctor schedules from actual CSV files"""
+        # Create a test CSV file
+        test_csv_content = """doctor_name,specialty,date,time
+Dr. Smith,General Medicine,2024-07-01,10:00
+Dr. Lee,Pediatrics,2024-07-01,09:00"""
         
-        # This test ensures tools are properly imported and accessible
-        # The actual functionality is tested in agent tests
-        assert prompt_enhancer_node is not None
-        assert answer_generator_node is not None
+        test_file_path = "/tmp/test_schedule.csv"
+        with open(test_file_path, "w") as f:
+            f.write(test_csv_content)
+        
+        # Test reading the file
+        assert os.path.exists(test_file_path)
+        with open(test_file_path, "r") as f:
+            content = f.read()
+            assert "Dr. Smith" in content
+            assert "General Medicine" in content
+        
+        # Cleanup
+        os.remove(test_file_path)
+
+class TestCalculations:
+    """Test mathematical calculations with real computation"""
     
-    def test_tool_error_propagation(self):
-        """Test how tool errors are handled by agents"""
-        # Test that tool failures are properly caught and handled
-        # This integrates with the agent error handling tests
-        pass
+    def test_appointment_time_calculations(self):
+        """Test real time calculations for appointment scheduling"""
+        # Test duration calculation
+        start_time = "10:00"
+        duration_minutes = 30
+        
+        # Real calculation logic
+        start_hour, start_minute = map(int, start_time.split(":"))
+        total_minutes = start_hour * 60 + start_minute + duration_minutes
+        end_hour = total_minutes // 60
+        end_minute = total_minutes % 60
+        end_time = f"{end_hour:02d}:{end_minute:02d}"
+        
+        assert end_time == "10:30"
+    
+    def test_availability_overlap_calculation(self):
+        """Test real overlap calculations for scheduling conflicts"""
+        # Real overlap detection logic
+        slot1 = {"start": "10:00", "end": "11:00"}
+        slot2 = {"start": "10:30", "end": "11:30"}
+        
+        def time_to_minutes(time_str):
+            hour, minute = map(int, time_str.split(":"))
+            return hour * 60 + minute
+        
+        slot1_start = time_to_minutes(slot1["start"])
+        slot1_end = time_to_minutes(slot1["end"])
+        slot2_start = time_to_minutes(slot2["start"])
+        slot2_end = time_to_minutes(slot2["end"])
+        
+        # Check for overlap
+        overlap = not (slot1_end <= slot2_start or slot2_end <= slot1_start)
+        assert overlap is True  # These slots should overlap
 ```
 
 **File**: `/backend_gen/tests/test_schemas.py`
 ```python
+# NOTE: Unit tests should use real LLM calls, real file access, and real code execution wherever possible.
+# See the node implementation for actual LLM usage.
+
 import pytest
 from pydantic import ValidationError
 from agent.tools_and_schemas import (
-    QuestionSchema,
-    AnswerSchema,
-    EnhancedPromptSchema
+    PatientInfoSchema,
+    AppointmentRequestSchema,
+    DoctorScheduleSchema,
+    AppointmentConfirmationSchema
 )
 
 class TestPydanticSchemas:
-    """Test Pydantic model validation"""
+    """Test Pydantic model validation with real data"""
     
-    def test_question_schema_valid_input(self):
-        """Test question schema with valid inputs"""
-        valid_questions = [
-            "What is AI?",
-            "How does machine learning work?",
-            "Explain neural networks in simple terms."
+    def test_patient_info_schema_valid_input(self):
+        """Test patient info schema with valid real inputs"""
+        valid_patients = [
+            {"name": "John Doe", "age": 35, "contact": "john@example.com", "symptoms": "Headache"},
+            {"name": "Jane Smith", "age": 28, "contact": "jane@example.com", "symptoms": "Fever"},
+            {"name": "Bob Johnson", "age": 45, "contact": "bob@example.com"}
         ]
         
-        for question in valid_questions:
-            schema = QuestionSchema(question=question)
-            assert schema.question == question
-            assert len(schema.question) > 0
+        for patient_data in valid_patients:
+            schema = PatientInfoSchema(**patient_data)
+            assert schema.name == patient_data["name"]
+            assert schema.age == patient_data["age"]
+            assert schema.contact == patient_data["contact"]
     
-    def test_question_schema_invalid_input(self):
-        """Test question schema with invalid inputs"""
+    def test_patient_info_schema_invalid_input(self):
+        """Test patient info schema with invalid real inputs"""
         invalid_inputs = [
-            "",  # Empty string
-            None,  # None value
-            "   ",  # Only whitespace
+            {"name": "", "age": 35, "contact": "john@example.com"},  # Empty name
+            {"name": "John", "age": -5, "contact": "john@example.com"},  # Negative age
+            {"name": "John", "age": "not_a_number", "contact": "john@example.com"},  # Invalid age type
         ]
         
         for invalid_input in invalid_inputs:
             with pytest.raises(ValidationError):
-                QuestionSchema(question=invalid_input)
+                PatientInfoSchema(**invalid_input)
     
-    def test_answer_schema_valid_input(self):
-        """Test answer schema with valid inputs"""
-        valid_answer = "AI is a field of computer science that focuses on creating intelligent machines."
-        
-        schema = AnswerSchema(answer=valid_answer)
-        assert schema.answer == valid_answer
-        assert len(schema.answer) > 0
-    
-    def test_answer_schema_validation_rules(self):
-        """Test answer schema validation rules"""
-        # Test minimum length requirement
-        short_answer = "AI."
-        with pytest.raises(ValidationError):
-            AnswerSchema(answer=short_answer)
-        
-        # Test valid longer answer
-        good_answer = "AI is a comprehensive field that encompasses machine learning, natural language processing, and robotics."
-        schema = AnswerSchema(answer=good_answer)
-        assert schema.answer == good_answer
-    
-    def test_enhanced_prompt_schema(self):
-        """Test enhanced prompt schema"""
-        original = "What is AI?"
-        enhanced = "What is artificial intelligence, including its main branches, applications, and current limitations?"
-        
-        schema = EnhancedPromptSchema(
-            original_question=original,
-            enhanced_prompt=enhanced
-        )
-        
-        assert schema.original_question == original
-        assert schema.enhanced_prompt == enhanced
-        assert len(schema.enhanced_prompt) > len(schema.original_question)
-
-class TestSchemaIntegration:
-    """Test schema integration with the overall system"""
-    
-    def test_state_schema_compatibility(self):
-        """Test that schemas work with the state management"""
-        from agent.state import OverallState
-        
-        # Test that our schemas are compatible with the state structure
-        state_data = {
-            "messages": [{"role": "human", "content": "What is AI?"}],
-            "original_question": "What is AI?",
-            "enhanced_prompt": "What is artificial intelligence and its applications?",
-            "final_answer": "AI is a field of computer science..."
+    def test_appointment_request_schema_valid_input(self):
+        """Test appointment request schema with valid real inputs"""
+        valid_request = {
+            "patient_name": "John Doe",
+            "requested_date": "2024-07-01",
+            "requested_time": "10:00",
+            "doctor_specialty": "General Medicine"
         }
         
-        # This should not raise validation errors
-        # The actual validation depends on how OverallState is implemented
-        assert isinstance(state_data, dict)
-        assert all(key in state_data for key in ["messages", "original_question"])
+        schema = AppointmentRequestSchema(**valid_request)
+        assert schema.patient_name == valid_request["patient_name"]
+        assert schema.requested_date == valid_request["requested_date"]
+        assert schema.requested_time == valid_request["requested_time"]
+    
+    def test_doctor_schedule_schema_valid_input(self):
+        """Test doctor schedule schema with valid real inputs"""
+        valid_schedule = {
+            "doctor_name": "Dr. Smith",
+            "specialty": "General Medicine",
+            "available_slots": [
+                {"date": "2024-07-01", "time": "10:00"},
+                {"date": "2024-07-01", "time": "11:00"}
+            ]
+        }
+        
+        schema = DoctorScheduleSchema(**valid_schedule)
+        assert schema.doctor_name == valid_schedule["doctor_name"]
+        assert schema.specialty == valid_schedule["specialty"]
+        assert len(schema.available_slots) == 2
+    
+    def test_appointment_confirmation_schema_valid_input(self):
+        """Test appointment confirmation schema with valid real inputs"""
+        valid_confirmation = {
+            "patient_name": "John Doe",
+            "doctor_name": "Dr. Smith",
+            "date": "2024-07-01",
+            "time": "10:00",
+            "status": "confirmed"
+        }
+        
+        schema = AppointmentConfirmationSchema(**valid_confirmation)
+        assert schema.patient_name == valid_confirmation["patient_name"]
+        assert schema.doctor_name == valid_confirmation["doctor_name"]
+        assert schema.status == valid_confirmation["status"]
+
+class TestSchemaIntegration:
+    """Test schema integration with real system components"""
+    
+    def test_state_schema_compatibility(self):
+        """Test that schemas work with the real state management"""
+        from agent.state import OverallState
+        
+        # Test with real state data
+        state_data = {
+            "messages": [{"role": "human", "content": "I need an appointment"}],
+            "patient_info": {"name": "John Doe", "age": 35, "contact": "john@example.com"},
+            "appointment_request": {"patient_name": "John Doe", "requested_date": "2024-07-01", "requested_time": "10:00"},
+            "doctor_schedules": [{"doctor_name": "Dr. Smith", "specialty": "General Medicine", "available_slots": []}],
+            "scheduled_appointment": None,
+            "errors": None
+        }
+        
+        # Validate that real data works with schemas
+        patient_schema = PatientInfoSchema(**state_data["patient_info"])
+        assert patient_schema.name == "John Doe"
+        
+        request_schema = AppointmentRequestSchema(**state_data["appointment_request"])
+        assert request_schema.patient_name == "John Doe"
 ```
 
 **File**: `/backend_gen/tests/conftest.py`
 ```python
 import pytest
 import os
-from unittest.mock import Mock
 from dotenv import load_dotenv
 
-# Load test environment variables
+# Load real environment variables for testing
 load_dotenv(dotenv_path=".env")
 
 @pytest.fixture
-def mock_llm():
-    """Provide a mock LLM for testing"""
-    mock = Mock()
-    mock.invoke.return_value = Mock(content="Mocked LLM response")
-    return mock
-
-@pytest.fixture
 def sample_state():
-    """Provide sample state for testing"""
+    """Provide real sample state for testing"""
     return {
-        "messages": [{"role": "human", "content": "What is AI?"}],
-        "original_question": "What is AI?",
-        "enhanced_prompt": None,
-        "final_answer": None
+        "messages": [{"role": "human", "content": "I need an appointment for a headache"}],
+        "patient_info": None,
+        "appointment_request": None,
+        "doctor_schedules": None,
+        "scheduled_appointment": None,
+        "errors": None
     }
 
 @pytest.fixture
-def enhanced_state():
-    """Provide state with enhanced prompt for testing"""
+def complete_state():
+    """Provide complete state with all real data for testing"""
     return {
-        "messages": [{"role": "human", "content": "What is AI?"}],
-        "original_question": "What is AI?",
-        "enhanced_prompt": "What is artificial intelligence and how does it work?",
-        "final_answer": None
+        "messages": [{"role": "human", "content": "I need an appointment"}],
+        "patient_info": {"name": "John Doe", "age": 35, "contact": "john@example.com", "symptoms": "Headache"},
+        "appointment_request": {"patient_name": "John Doe", "requested_date": "2024-07-01", "requested_time": "10:00"},
+        "doctor_schedules": [
+            {
+                "doctor_name": "Dr. Smith",
+                "specialty": "General Medicine",
+                "available_slots": [{"date": "2024-07-01", "time": "10:00"}]
+            }
+        ],
+        "scheduled_appointment": None,
+        "errors": None
     }
 
 @pytest.fixture(autouse=True)
 def setup_test_environment():
-    """Setup test environment variables"""
-    os.environ.setdefault("GEMINI_API_KEY", "test-key-for-testing")
+    """Setup real test environment variables"""
+    # Ensure real API key is available for testing
+    if not os.getenv("GEMINI_API_KEY"):
+        pytest.skip("GEMINI_API_KEY not available for real LLM testing")
     yield
     # Cleanup if needed
 ```
@@ -657,11 +917,13 @@ python -m pytest tests/ --cov=agent --cov-report=html --cov-report=term
 ```
 
 **Unit Test Success Criteria**:
-- [ ] All agent tests pass with mocked dependencies
-- [ ] All tool tests validate functionality and error handling
-- [ ] All schema tests cover validation rules and edge cases
+- [ ] All agent tests pass using real LLM calls, real file access, and real code execution
+- [ ] All tool tests validate functionality and error handling with real data
+- [ ] All schema tests cover validation rules and edge cases with real inputs
 - [ ] Test coverage > 80% for all agent and tool code
-- [ ] No real API calls during unit testing (all mocked)
+- [ ] File operations tests use actual file I/O
+- [ ] Mathematical calculations tests perform real computations
+- [ ] All tests demonstrate real integration behavior
 
 #### 3.1 Validation Tasks
 ```bash
@@ -676,445 +938,4 @@ python -c "from agent.graph import build_graph; build_graph()"
 python -c "
 from agent.graph import graph
 print('Graph name:', graph.name if hasattr(graph, 'name') else 'agent')
-print('Nodes:', list(graph.nodes.keys()) if hasattr(graph, 'nodes') else 'Check compilation')
-"
-```
-
-#### 3.2 Direct Testing Script
-**Note**: This test makes live API calls. Ensure your testing script loads environment variables (e.g., `from dotenv import load_dotenv; load_dotenv()`) so the API key from `.env` is available.
-
-Create `/backend_gen/test_direct.py`:
-```python
-import pytest
-from agent.graph import graph
-from agent.state import OverallState
-
-def test_graph_direct():
-    """Test graph execution directly without API"""
-    initial_state = {
-        "messages": [{"role": "human", "content": "Test message"}]
-    }
-    
-    # Execute graph
-    result = graph.invoke(initial_state)
-    
-    # Validate results
-    assert result is not None
-    assert "messages" in result
-    print("Direct test passed:", result)
-
-if __name__ == "__main__":
-    test_graph_direct()
-```
-
-#### 3.3 API Server Validation
-**Critical Note**: Do not use a `pytest` script to validate the running server. The `langgraph dev` server should be validated directly with a client tool like `curl` to simulate real API interaction.
-
-**Validation Steps**:
-1.  Start the server in one terminal:
-    ```bash
-    cd /backend_gen
-    langgraph dev --port 8000
-    ```
-
-2.  In a second terminal, send a request using `curl`. The `-N` or `--no-buffer` flag is **mandatory** to handle the streaming response correctly and keep the connection open.
-    ```bash
-    curl -X POST -N -H "Content-Type: application/json" \
-    -d '{"assistant_id": "agent", "input": {"messages": [{"role": "human", "content": "What is AI?"}]}, "stream_mode": "updates"}' \
-    http://127.0.0.1:8000/runs
-    ```
-
-**Expected Output**:
-- The `curl` command will stay connected and print the server's real-time log output as the graph executes.
-- You will see the print statements from each node (`---PROMPT ENHANCER NODE---`, etc.).
-- This confirms the server is receiving requests and executing the graph end-to-end. The stream data itself is logged to `stderr` by the server, not sent as clean `data:` events over `stdout` in this development mode.
-
-
-### Phase 3: Testing & Validation
-
-#### 3.0 Unit Testing Execution
-// ... existing code ...
-
----
-
-## 5. COMPREHENSIVE TESTING STRATEGY
-
-### Unit Testing Requirements
-
-#### Agent Testing Standards
-Each agent must have unit tests covering:
-
-1. **Functionality Testing**
-   - Core logic validation with mocked dependencies
-   - Input/output transformation verification
-   - State modification correctness
-
-2. **Error Handling Testing**
-   - LLM API failures and timeouts
-   - Invalid input handling
-   - Network connectivity issues
-   - Graceful degradation scenarios
-
-3. **Tool Integration Testing**
-   - Tool accessibility and invocation
-   - Tool response processing
-   - Tool error propagation
-
-4. **Edge Case Testing**
-   - Empty or null inputs
-   - Extremely long inputs
-   - Special characters and encoding
-   - Boundary conditions
-
-#### Tool Testing Standards
-Each tool must have unit tests covering:
-
-1. **Interface Testing**
-   - Proper tool structure and attributes
-   - Function signature validation
-   - Parameter handling
-
-2. **Execution Testing**
-   - Core functionality with various inputs
-   - Response format validation
-   - Performance within acceptable limits
-
-3. **Error Scenarios**
-   - Invalid parameters
-   - External service failures
-   - Timeout handling
-   - Exception propagation
-
-#### Schema Testing Standards
-All Pydantic schemas must have tests covering:
-
-1. **Validation Rules**
-   - Valid input acceptance
-   - Invalid input rejection
-   - Type checking and conversion
-
-2. **Business Logic**
-   - Field relationships and dependencies
-   - Custom validators
-   - Data transformation
-
-3. **Integration Compatibility**
-   - State management compatibility
-   - API serialization/deserialization
-   - Cross-schema relationships
-
-### Unit Test Implementation Guidelines
-
-#### Mocking Strategy
-- **LLM Services**: Always mock external LLM API calls
-- **File Operations**: Mock file system interactions
-- **Network Calls**: Mock all external network requests
-- **Environment Variables**: Use test fixtures for configuration
-
-#### Test Organization
-```
-tests/
-├── conftest.py              # Shared fixtures and configuration
-├── test_agents.py           # Agent-specific unit tests
-├── test_tools.py            # Tool functionality tests
-├── test_schemas.py          # Pydantic model validation tests
-├── test_integration.py      # Component integration tests
-└── test_graph.py           # Graph compilation and structure tests
-```
-
-#### Coverage Requirements
-- **Minimum Coverage**: 80% for all agent and tool code
-- **Critical Path Coverage**: 100% for core business logic
-- **Error Path Coverage**: All exception scenarios tested
-- **Branch Coverage**: All conditional logic paths covered
-
-### Testing Task Requirements
-
-Create the following additional test tasks:
-
-1. **Unit Test Generation Task**
-   - Generate comprehensive unit tests for each agent
-   - Create tool validation tests
-   - Implement schema testing suites
-   - Setup test fixtures and mocking
-
-2. **Test Coverage Validation Task**
-   - Run coverage analysis
-   - Identify untested code paths
-   - Ensure minimum coverage thresholds
-   - Generate coverage reports
-
-3. **Error Scenario Testing Task**
-   - Test all identified error conditions
-   - Validate error handling and recovery
-   - Verify graceful degradation
-   - Document error scenarios
-
-### Decision Matrix
-| Scenario | Architecture | Implementation Pattern |
-|----------|-------------|----------------------|
-| Single linear task, few tools | **Monolithic graph** | Simple sequential nodes |
-| 2-6 specialized agents, centralized decisions | **Supervisor (tool-calling)** | Supervisor routes to sub-agents |
-| >6 agents or multiple domains | **Hierarchical** | Teams with supervisors + coordinator |
-| Agents need free communication | **Network** | Many-to-many routing |
-| Deterministic pipeline | **Custom workflow** | Explicit edges only |
-
-### Architecture Selection Process
-1. Analyze business requirements
-2. Count required specialized agents
-3. Determine decision-making pattern
-4. Assess communication needs
-5. Select architecture from matrix
-6. Document rationale in graph_spec.yaml
-
----
-
-## 7. ERROR HANDLING & RECOVERY PATTERNS
-
-### Error Documentation Standard
-Every error encountered must be logged in `/docs/tips.md` with:
-```markdown
-## Error: [Error Type/Message]
-**Cause**: [Root cause analysis]
-**Solution**: [Step-by-step fix]
-**Prevention**: [How to avoid in future]
-**Related Files**: [Files affected/modified]
-```
-
-### Common Error Patterns & Solutions
-
-#### Router Error Resolution
-**Error**: `Expected dict, got <string>`
-**Cause**: Router function registered as standard node
-**Solution**:
-```python
-# WRONG - Router as node
-builder.add_node("router", router_function)
-
-# CORRECT - Router in conditional edges
-builder.add_conditional_edges(
-    "source_node",
-    router_function,
-    {"path1": "target_node1", "path2": "target_node2"}
-)
-```
-
-#### Import Error Resolution
-**Error**: `ImportError: cannot import name 'graph'`
-**Cause**: Graph not instantiated in graph.py
-**Solution**:
-```python
-# Add to graph.py
-def build_graph():
-    # ... graph building logic
-    return builder.compile()
-
-# CRITICAL: Instantiate the graph
-graph = build_graph()
-```
-
-#### Environment Configuration Error
-**Error**: Missing API keys
-**Solution**:
-1. Check `backend/.env` exists
-2. Copy to `backend_gen/.env`
-3. Validate key with test script
-4. Request from user if missing (one time only)
-
----
-
-## 8. TESTING STRATEGY & VALIDATION
-
-### Four-Tier Testing Approach
-
-#### Tier 0: Unit Testing (Individual Agents & Tools)
-- **Agent Unit Tests**: Each agent tested in isolation
-- **Tool Validation**: Each tool tested independently
-- **Schema Validation**: Pydantic models tested with various inputs
-- **Mock Dependencies**: External services mocked for reliable testing
-- **Edge Cases**: Error conditions and boundary testing
-
-#### Tier 1: Direct Python Testing
-- Import validation
-- Graph compilation
-- Basic state transitions
-- No external dependencies
-
-#### Tier 2: API Integration Testing
-- Server startup validation
-- Endpoint availability (validated via `curl -N`, not test scripts)
-- Request/response cycles
-- Error handling
-
-#### Tier 3: End-to-End Testing
-- Complete user scenarios
-- Multi-turn conversations
-- Error recovery
-- Performance validation
-
-### Test Execution Protocol
-1. **Always start with Tier 0** - Unit test each agent and tool individually
-2. **Run Tier 1 only after Tier 0 passes** - Test graph compilation and basic functionality
-3. **Execute Tier 2 after Tier 1 succeeds** - Validate API functionality
-4. **Run Tier 3 for production readiness** - Complete scenario testing
-5. **Re-run Tier 0 & 1 after any code changes** - Ensure no regressions
-
----
-
-## 9. AUTONOMOUS EXECUTION LOOP
-
-### Task Management Protocol
-1. **Task Discovery**: Scan `/tasks` directory for pending tasks
-2. **Prerequisite Check**: Verify all dependencies completed
-3. **Error Review**: Check `/docs/tips.md` for relevant solutions  
-4. **Execution**: Run task with full error handling
-5. **Validation**: Verify success criteria met
-6. **Status Update**: Mark task as `done` or `failed`
-7. **Error Recovery**: On failure, document error, fix, and retry
-8. **Continuation**: Move to next task
-
-### Status Tracking System
-Tasks marked with status indicators:
-- `pending` - Ready for execution
-- `in_progress` - Currently executing
-- `done` - Successfully completed
-- `failed` - Needs attention/retry
-- `blocked` - Waiting for dependencies
-
-### Progress Reporting
-Maintain `/tasks/progress.md` with:
-- Current phase status
-- Completed tasks count
-- Active issues
-- Next scheduled tasks
-
----
-
-
-## 11. PRODUCTION DEPLOYMENT CHECKLIST
-
-### Pre-Deployment Validation
-- [ ] All unit tests pass (agents, tools, schemas)
-- [ ] All integration tests pass (Tier 1, 2, and 3)
-- [ ] Test coverage meets minimum requirements (>80%)
-- [ ] No errors in server logs
-- [ ] Environment variables properly configured
-- [ ] Graph compiles and instantiates correctly
-- [ ] API endpoints respond correctly (validated via `curl -N`)
-- [ ] Error handling covers edge cases
-
-### Deployment Artifacts
-- [ ] `langgraph.json` properly configured
-- [ ] All dependencies listed and available
-- [ ] Environment configuration documented
-- [ ] Testing scripts provided
-- [ ] Error recovery documentation complete
-
-### Post-Deployment Verification
-- [ ] Health check endpoints functional
-- [ ] Sample interactions successful
-- [ ] Performance within acceptable limits
-- [ ] Monitoring and logging operational
-
----
-
-## 12. APPENDICES
-
-### Appendix A: Complete Example Payloads
-
-#### Basic Interaction Payload
-```json
-{
-  "assistant_id": "agent",
-  "input": {
-    "messages": [
-      {"role": "human", "content": "Enhance this question: What is machine learning?"}
-    ]
-  },
-  "stream_mode": ["updates"]
-}
-```
-
-#### Streaming Payload
-```json
-{
-  "assistant_id": "agent", 
-  "thread_id": "unique-thread-id",
-  "input": {
-    "messages": [
-      {"role": "user", "content": "Please answer the questions in questions.md"}
-    ]
-  },
-  "stream_mode": "values"
-}
-```
-
-### Appendix B: Server Configuration
-
-#### Default Endpoints
-- **API Base**: `http://127.0.0.1:2024`
-- **Documentation**: `http://127.0.0.1:2024/docs`
-- **Runs Endpoint**: `http://127.0.0.1:2024/runs`
-- **Streaming Endpoint**: `http://127.0.0.1:2024/runs/stream`
-
-#### Required Headers
-```
-Content-Type: application/json
-Accept: application/json
-```
-
-### Appendix C: Development Tools Configuration
-
-#### Context7 Usage for Documentation
-```bash
-# Access latest LangGraph documentation
-context7 langgraph [specific_topic]
-```
-
-#### Essential Commands
-```bash
-# Development server
-langgraph dev
-
-# Installation
-pip install -e .
-
-# Testing
-python -m pytest tests/ -v
-
-# Graph validation
-python -c "from agent.graph import graph; print('Graph loaded successfully')"
-```
-
----
-
-
-## 10. AGENT USE CASE SPECIFICATION
-
-### Application Description
-Create a two-agent LangGraph solution:
-
-**Agent 1: Prompt Enhancer**
-- **Input**: Raw user question
-- **Function**: Enhance and optimize the question for better AI comprehension
-- **Output**: Enhanced, contextually rich prompt
-- **Tools**: LLM for prompt engineering, context analysis
-
-**Agent 2: Answer Generator**  
-- **Input**: Enhanced prompt from Agent 1
-- **Function**: Generate comprehensive, accurate answer
-- **Output**: Well-structured response to user
-- **Tools**: LLM for answer generation, knowledge retrieval
-
-### Implementation Requirements
-1. **State Management**: Track original question, enhanced prompt, and final answer in the graph state, no need for databases.
-2. **Error Handling**: Graceful degradation if enhancement fails
-3. **Quality Control**: Validation of enhanced prompts and answers
-4. **User Experience**: Seamless interaction hiding internal complexity
-
-### Success Criteria
-- User submits question → receives enhanced answer
-- System handles various question types
-- Robust error handling and recovery
-
----
+print('
