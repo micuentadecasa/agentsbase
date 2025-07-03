@@ -1136,5 +1136,162 @@ From `agent/configuration.py`:
 
 ---
 
-**Total Tips: 12**
-**Last Updated**: Healthcare Patient Care Coordination System - Configuration Pattern (TIP #012)
+## TIP #013: LangChain Message Object vs Dictionary Handling
+
+**Category**: Development|Runtime
+**Severity**: Critical
+**Business Context**: When processing message history in LangGraph agent nodes
+
+### Problem Description
+Agents fail at runtime with error: `AttributeError: 'HumanMessage' object has no attribute 'get'`
+
+This occurs when treating LangChain message objects as dictionaries. LangChain messages (HumanMessage, AIMessage, etc.) are objects with `.content` attributes, not dictionaries with `.get()` methods.
+
+### Root Cause Analysis
+The LangGraph framework passes messages as LangChain message objects in the state, but developers often assume they are dictionaries because:
+1. Unit tests may use mock dictionary messages that work fine
+2. State structure examples often show dictionary format
+3. The transition from dictionary to LangChain objects isn't immediately obvious
+
+### Solution Implementation
+```python
+# ❌ WRONG - Assuming messages are dictionaries
+for message in reversed(messages):
+    if isinstance(message.get("content"), dict):  # AttributeError!
+        content = message.get("content")
+
+# ✅ CORRECT - Handle both LangChain objects and dictionaries
+for message in reversed(messages):
+    # Handle both dict and LangChain message objects
+    if hasattr(message, 'content'):
+        # LangChain message object (HumanMessage, AIMessage, etc.)
+        content = message.content
+    elif isinstance(message, dict):
+        # Dictionary message (from tests or custom state)
+        content = message.get("content")
+    else:
+        continue
+        
+    # Now safely process content
+    if isinstance(content, dict) and "student_data" in content:
+        student_data = content["student_data"]
+        break
+```
+
+### Prevention Strategy
+1. **Always check for both formats** when iterating through message history
+2. **Use hasattr() checks** to detect LangChain message objects
+3. **Test with real LangGraph server** execution, not just unit tests
+4. **Design message handling** to be flexible for both object types
+
+### Testing Approach
+```python
+def test_message_handling():
+    # Test with LangChain message objects
+    from langchain_core.messages import HumanMessage
+    langchain_messages = [HumanMessage(content="test")]
+    
+    # Test with dictionary messages
+    dict_messages = [{"role": "user", "content": "test"}]
+    
+    # Agent should handle both without errors
+    assert agent_handles_messages(langchain_messages)
+    assert agent_handles_messages(dict_messages)
+```
+
+### Related Tips
+[TIP #005] - The Critical Gap Between Unit Tests and Real LLM Endpoint Testing
+
+### Business Impact
+**Critical Runtime Blocker**: This error completely prevents agent execution when processing user messages. It only surfaces during real API calls, not unit tests, making it particularly dangerous. Can affect any business case that processes message history for context or data extraction.
+
+**Detection Strategy**: Always test with real LangGraph server execution to catch these object vs dictionary issues before deployment.
+
+---
+
+## TIP #014: LangChain Message Role Validation Error
+
+**Category**: Development|Runtime
+**Severity**: Critical
+**Business Context**: When creating agent messages with invalid role types in LangGraph applications
+
+### Problem Description
+LangGraph server fails during execution with error:
+```
+ValueError: Unexpected message type: 'agent'. Use one of 'human', 'user', 'ai', 'assistant', 'function', 'tool', 'system', or 'developer'.
+For troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/MESSAGE_COERCION_FAILURE
+```
+
+This occurs when agent nodes create messages with `"role": "agent"` instead of LangChain's valid message roles.
+
+### Root Cause Analysis
+LangChain has specific message role requirements and does not recognize `"agent"` as a valid role. The valid roles are:
+- `human` / `user` - for user input
+- `ai` / `assistant` - for AI responses  
+- `function` / `tool` - for function/tool outputs
+- `system` - for system messages
+- `developer` - for developer messages
+
+Using `"role": "agent"` causes message coercion failures during LangGraph execution.
+
+### Solution Implementation
+```python
+# ❌ WRONG - Invalid role that causes runtime error
+new_message = {
+    "role": "agent",  # Invalid role!
+    "content": "Analysis complete",
+    "name": "my_agent"
+}
+
+# ✅ CORRECT - Use "assistant" for agent responses
+new_message = {
+    "role": "assistant",  # Valid LangChain role
+    "content": "Analysis complete", 
+    "name": "my_agent"
+}
+```
+
+**Search and Replace Pattern:**
+```bash
+# Find all occurrences of invalid agent role
+grep -r '"role":\s*"agent"' src/agent/nodes/
+
+# Replace with assistant role
+sed -i 's/"role": "agent"/"role": "assistant"/g' src/agent/nodes/*.py
+```
+
+### Prevention Strategy
+1. **Use only valid LangChain roles** when creating messages in agent nodes
+2. **Standardize on "assistant"** for all agent-generated responses
+3. **Test with real LangGraph server** execution to catch role validation errors
+4. **Code review checklist** should include message role validation
+
+### Testing Approach
+```python
+def test_message_roles():
+    """Ensure all agent messages use valid LangChain roles"""
+    # Test message creation
+    message = create_agent_message("test content")
+    
+    # Validate role
+    assert message["role"] in ["human", "user", "ai", "assistant", "function", "tool", "system", "developer"]
+    
+    # Specifically check for common error
+    assert message["role"] != "agent"
+```
+
+### Related Tips
+[TIP #005] - The Critical Gap Between Unit Tests and Real LLM Endpoint Testing
+[TIP #013] - LangChain Message Object vs Dictionary Handling
+
+### Business Impact
+**Critical Runtime Blocker**: This error completely prevents graph execution when agents try to add messages to state. The error only surfaces during real server execution, not unit tests, making it a dangerous deployment blocker.
+
+**Quick Detection**: Run `grep -r '"role".*"agent"' src/` to find all instances before deployment.
+
+**Universal Impact**: Affects any business case where agents generate messages - which is nearly all LangGraph applications.
+
+---
+
+**Total Tips: 14**
+**Last Updated**: Educational Content Generation System - LangChain Message Role Validation (TIP #014)

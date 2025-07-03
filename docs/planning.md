@@ -211,11 +211,20 @@ ls -la /backend_gen  # Should contain copied backend structure
 
 **Critical Rule**: NO implementation code until this phase is 100% complete
 
-### Phase 2: Implementation & Code Generation
-**Objective**: Generate all required code components using accumulated knowledge. **This phase starts automatically after planning, with no user confirmation required.**
+### Phase 2: Test-Driven Development & Implementation
+**Objective**: Implement comprehensive testing BEFORE code generation, following TDD principles. **This phase starts automatically after planning, with no user confirmation required.**
+
+**TDD Philosophy**: Write tests first, then implement code to make tests pass. This ensures:
+- Clear specification of expected behavior before implementation
+- Better code design driven by test requirements  
+- Higher confidence in code correctness
+- Faster debugging and error detection
+- Prevention of regressions during development
+
 **Success Criteria**:
-- All mandatory files created under `/backend_gen/src/agent/`
-- LLM integration properly configured
+- **Phase 2.1**: Complete test suite written BEFORE any implementation
+- **Phase 2.2**: All mandatory implementation files created to satisfy tests
+- LLM integration properly configured and tested
 - All nodes follow MANDATORY LLM Call Pattern
 - Graph assembly completed using best practices from tips
 - Import validation successful
@@ -244,7 +253,307 @@ ls -la /backend_gen  # Should contain copied backend structure
 - [ ] Error handling mechanisms tested with fallback data
 - [ ] Component isolation verified (agents work independently)
 
-#### Phase 3.2: Graph Compilation & Import Validation  
+#### Phase 3.2: Multiple Agent Pytests & Type Validation
+**Objective**: Create comprehensive pytest test suites for each individual agent and validate all data types they handle. **This phase follows TDD principles by testing each agent thoroughly before server integration.**
+
+**Success Criteria**:
+- [ ] **Individual agent pytests created** - One test file per agent with comprehensive test coverage
+- [ ] **Type validation tests** - Verify each agent correctly handles and transforms all expected data types
+- [ ] **Agent input/output testing** - Test agent function signatures, parameter handling, and return values
+- [ ] **State transition testing** - Verify agents correctly update OverallState with proper field types
+- [ ] **Error handling testing** - Test agent behavior with invalid inputs, missing data, and edge cases
+- [ ] **LLM integration testing** - Test real LLM calls with conversation logging and response validation
+- [ ] **Configuration testing** - Verify agents use Configuration.from_runnable_config() correctly
+- [ ] **Pydantic model testing** - Test all data schemas for validation, serialization, and deserialization
+
+**Required Test Files Structure**:
+```bash
+tests/
+├── test_agent_[agent_name].py     # Individual agent tests (one per agent)
+├── test_types_[agent_name].py     # Type validation tests (one per agent) 
+├── test_state_transitions.py      # OverallState transition testing
+├── test_configuration.py          # Configuration pattern testing
+├── test_schemas.py                 # Pydantic model validation
+├── test_error_handling.py          # Error scenarios and fallbacks
+└── conftest.py                     # Shared test fixtures and utilities
+```
+
+**Example Individual Agent Test Template**:
+```python
+# tests/test_agent_[agent_name].py
+import pytest
+import json
+from datetime import datetime
+from unittest.mock import Mock
+from langchain_core.runnables import RunnableConfig
+from agent.state import OverallState
+from agent.configuration import Configuration
+from agent.nodes.[agent_name] import [agent_function_name]
+from agent.tools_and_schemas import [relevant_schemas]
+
+@pytest.fixture
+def sample_state() -> OverallState:
+    """Create realistic test state for agent testing"""
+    return {
+        "messages": [{"role": "user", "content": "Test input message"}],
+        "[domain_specific_field]": {"key": "test_value"},
+        "errors": [],
+        "current_step": "initialized"
+    }
+
+@pytest.fixture  
+def runnable_config() -> RunnableConfig:
+    """Create test configuration"""
+    return RunnableConfig(
+        configurable={
+            "query_generator_model": "gemini-2.0-flash",
+            "answer_model": "gemini-1.5-flash-latest",
+            "reflection_model": "gemini-2.5-flash-preview-04-17"
+        }
+    )
+
+class TestAgentFunctionality:
+    """Test core agent functionality"""
+    
+    def test_agent_function_signature(self, sample_state, runnable_config):
+        """Test agent function accepts correct parameters"""
+        result = [agent_function_name](sample_state, runnable_config)
+        assert isinstance(result, dict)
+        assert "messages" in result
+    
+    def test_agent_state_updates(self, sample_state, runnable_config):
+        """Test agent correctly updates state fields"""
+        result = [agent_function_name](sample_state, runnable_config)
+        
+        # Verify state structure maintained
+        assert "messages" in result
+        assert isinstance(result["messages"], list)
+        
+        # Verify agent-specific state updates
+        assert "[expected_output_field]" in result
+        assert result["current_step"] != "initialized"
+    
+    def test_agent_configuration_usage(self, sample_state, runnable_config):
+        """Test agent uses Configuration.from_runnable_config() pattern"""
+        # Mock Configuration to verify it's called
+        with pytest.MonkeyPatch().context() as m:
+            mock_config = Mock()
+            mock_config.answer_model = "test-model"
+            m.setattr("agent.configuration.Configuration.from_runnable_config", Mock(return_value=mock_config))
+            
+            result = [agent_function_name](sample_state, runnable_config)
+            
+            # Verify Configuration was used
+            assert result is not None
+    
+    def test_agent_llm_conversation_logging(self, sample_state, runnable_config, caplog):
+        """Test LLM conversation logging and real API calls"""
+        start_time = datetime.now()
+        result = [agent_function_name](sample_state, runnable_config)
+        duration = (datetime.now() - start_time).total_seconds()
+        
+        # Verify LLM was called (check for API response indicators)
+        assert "messages" in result
+        assert len(result["messages"]) > 0
+        
+        # Verify conversation logging occurred
+        assert duration > 0  # Real LLM call takes time
+        
+        # Log conversation details for debugging
+        print(f"\n=== AGENT TEST CONVERSATION ===")
+        print(f"Agent: [agent_name]")
+        print(f"Duration: {duration:.2f}s")
+        print(f"Messages: {len(result['messages'])}")
+        print(f"Response: {result['messages'][-1]['content'][:200]}...")
+
+class TestAgentTypeValidation:
+    """Test agent handles all expected data types correctly"""
+    
+    def test_input_type_validation(self, runnable_config):
+        """Test agent handles various input state types"""
+        test_cases = [
+            {"messages": [], "field": None},  # None values
+            {"messages": [], "field": {}},   # Empty dicts
+            {"messages": [], "field": []},   # Empty lists
+            {"messages": [{"role": "user", "content": "test"}], "field": {"data": "value"}},  # Valid data
+        ]
+        
+        for test_state in test_cases:
+            result = [agent_function_name](test_state, runnable_config)
+            assert isinstance(result, dict)
+            assert "messages" in result
+    
+    def test_output_type_consistency(self, sample_state, runnable_config):
+        """Test agent output types match OverallState schema"""
+        result = [agent_function_name](sample_state, runnable_config)
+        
+        # Verify required fields are present and correct types
+        assert isinstance(result.get("messages"), list)
+        assert isinstance(result.get("errors", []), list)
+        assert isinstance(result.get("current_step"), str)
+        
+        # Verify agent-specific output fields
+        # [Add specific assertions for this agent's output types]
+    
+    def test_pydantic_model_integration(self, sample_state, runnable_config):
+        """Test agent correctly uses Pydantic models for data validation"""
+        result = [agent_function_name](sample_state, runnable_config)
+        
+        # If agent returns structured data, verify Pydantic model usage
+        if "[structured_data_field]" in result:
+            structured_data = result["[structured_data_field]"]
+            # Verify data can be reconstructed with Pydantic model
+            # [Add specific Pydantic model validation tests]
+
+class TestAgentErrorHandling:
+    """Test agent error handling and fallback mechanisms"""
+    
+    def test_missing_required_fields(self, runnable_config):
+        """Test agent handles missing required state fields"""
+        incomplete_state = {"messages": []}  # Missing required fields
+        
+        result = [agent_function_name](incomplete_state, runnable_config)
+        
+        # Agent should handle gracefully
+        assert isinstance(result, dict)
+        assert "errors" in result or "messages" in result
+    
+    def test_invalid_configuration(self, sample_state):
+        """Test agent handles invalid configuration"""
+        invalid_config = RunnableConfig(configurable={})
+        
+        # Should not crash, might use fallbacks
+        result = [agent_function_name](sample_state, invalid_config)
+        assert isinstance(result, dict)
+    
+    def test_llm_api_failure_fallback(self, sample_state, runnable_config, monkeypatch):
+        """Test agent fallback when LLM API fails"""
+        # Mock LLM to raise exception
+        def mock_llm_invoke(*args, **kwargs):
+            raise Exception("API Error")
+        
+        # This would require more sophisticated mocking of the LLM
+        # Result should include error handling
+        result = [agent_function_name](sample_state, runnable_config)
+        # Verify agent didn't crash and provided fallback
+        assert isinstance(result, dict)
+```
+
+**Type Validation Test Template**:
+```python
+# tests/test_types_[agent_name].py  
+import pytest
+from typing import get_type_hints, get_origin, get_args
+from agent.nodes.[agent_name] import [agent_function_name]
+from agent.state import OverallState
+from agent.tools_and_schemas import [relevant_schemas]
+
+class TestAgentTypeSignatures:
+    """Validate agent function type signatures and annotations"""
+    
+    def test_function_type_hints(self):
+        """Test agent function has proper type hints"""
+        type_hints = get_type_hints([agent_function_name])
+        
+        # Verify parameter types
+        assert 'state' in type_hints
+        assert 'config' in type_hints
+        
+        # Verify return type
+        assert 'return' in type_hints
+        
+    def test_state_type_compatibility(self):
+        """Test agent state parameter accepts OverallState"""
+        # Verify OverallState fields are properly typed
+        state_hints = get_type_hints(OverallState)
+        assert 'messages' in state_hints
+        
+    def test_pydantic_schema_types(self):
+        """Test all Pydantic schemas have proper type validation"""
+        # Test each schema used by this agent
+        for schema_class in [relevant_schemas]:
+            # Verify schema can be instantiated
+            schema_hints = get_type_hints(schema_class)
+            assert len(schema_hints) > 0
+            
+            # Test schema validation with various inputs
+            # [Add specific type validation tests]
+
+class TestStateTransitionTypes:
+    """Test agent correctly transforms state field types"""
+    
+    def test_input_state_types(self):
+        """Test agent accepts various state field types"""
+        test_inputs = [
+            None,
+            {},
+            [],
+            "string_value",
+            {"key": "value"},
+            [{"item": "value"}]
+        ]
+        
+        for test_input in test_inputs:
+            # Test agent can handle this input type
+            # [Implementation depends on specific agent requirements]
+            pass
+    
+    def test_output_state_types(self):
+        """Test agent produces consistent output types"""
+        # Test multiple runs produce same output types
+        # [Implementation depends on specific agent requirements]
+        pass
+```
+
+#### Phase 3.3: LangWatch Scenario Testing & Agent Simulation
+**Objective**: Advanced agent testing through simulation-based testing with LangWatch Scenario framework BEFORE server testing. **This phase ensures code quality and agent behavior validation before LangGraph server integration.**
+
+**What is LangWatch Scenario**: LangWatch Scenario is an Agent Testing Framework based on simulations that can:
+- Test real agent behavior by simulating users in different scenarios and edge cases  
+- Evaluate and judge at any point of the conversation with powerful multi-turn control
+- Combine with any LLM eval framework or custom evals (agnostic by design)
+- Integrate any agent by implementing just one `call()` method
+- Available in Python, TypeScript and Go with comprehensive testing capabilities
+
+**Success Criteria**:
+- [ ] LangWatch Scenario installed and configured properly
+- [ ] Agent adapter implementation created for our LangGraph agent
+- [ ] Multiple scenario tests created covering edge cases and user interactions
+- [ ] Simulation-based testing executed with real user behavior simulation
+- [ ] Judge agents evaluate conversation quality with custom criteria
+- [ ] Performance metrics captured across different scenarios
+- [ ] Test results integrated with overall testing pipeline
+- [ ] Scenario test reports generated for analysis
+- [ ] **All scenario tests pass** before proceeding to server testing
+
+**Installation & Setup**:
+```bash
+# Install LangWatch Scenario framework
+cd /backend_gen
+pip install langwatch-scenario pytest
+
+# Verify installation
+python -c "import scenario; print('LangWatch Scenario installed successfully')"
+
+# Set up environment variables for LangWatch (optional but recommended for visualization)
+echo "LANGWATCH_API_KEY=your-api-key-here" >> .env
+echo "OPENAI_API_KEY=your-openai-key-here" >> .env  # Required for user simulation
+
+# Configure scenario defaults
+python -c "
+import scenario
+scenario.configure(
+    default_model='openai/gpt-4.1-mini',  # For user simulation
+    cache_key='[business-case]-tests',  # For repeatable tests
+    verbose=True  # Show detailed simulation output
+)
+print('LangWatch Scenario configured')
+"
+```
+
+#### Phase 3.4: Graph Compilation & Import Validation
+**Objective**: Validate graph structure and imports after successful scenario testing.
+
 **Success Criteria**:
 - [ ] Graph compiles and imports successfully without errors
 - [ ] All node imports execute without circular dependencies
@@ -253,7 +562,7 @@ ls -la /backend_gen  # Should contain copied backend structure
 - [ ] **Pre-server validation** prevents import errors at runtime
 - [ ] Package installation completes successfully
 
-#### Phase 3.3: LangGraph Server Testing & Real Execution
+#### Phase 3.5: LangGraph Server Testing & Real Execution
 **Success Criteria**:
 - [ ] `langgraph dev` server starts without errors or warnings from correct directory
 - [ ] Server logs show no ImportError, ModuleNotFoundError, or relative import issues
@@ -264,7 +573,7 @@ ls -la /backend_gen  # Should contain copied backend structure
 - [ ] Graph execution transitions through all states successfully
 - [ ] Server cleanup prevents hanging processes
 
-#### Phase 3.4: API Integration & End-to-End Validation
+#### Phase 3.6: API Integration & End-to-End Validation
 **Success Criteria**:
 - [ ] All REST API endpoints respond correctly (invoke, stream, health, schema)
 - [ ] End-to-end workflow completes from document upload to final analysis
@@ -310,306 +619,158 @@ def log_llm_conversation(agent_name, prompt, response, duration):
 # Final validation and documentation
 echo "=== Final Validation Report ==="
 echo "✅ Unit Tests: All agent, tool, and schema tests passing"
+echo "✅ Multiple Agent Pytests: Individual agent and type validation complete"
+echo "✅ LangWatch Scenario Testing: Agent behavior simulation verified"
 echo "✅ Graph Compilation: Successfully imports and compiles"
 echo "✅ LangGraph Server: Real LLM execution verified"
 echo "✅ API Integration: All endpoints functional"
 echo "🎯 System Ready for Production Deployment"
 
-#### 3.5 LangWatch Scenario Testing & Agent Simulation (NEW)
-**Objective**: Advanced agent testing through simulation-based testing with LangWatch Scenario framework. **This phase starts automatically after API integration testing, with no user confirmation required.**
+---
 
-**What is LangWatch Scenario**: LangWatch Scenario is an Agent Testing Framework based on simulations that can:
-- Test real agent behavior by simulating users in different scenarios and edge cases  
-- Evaluate and judge at any point of the conversation with powerful multi-turn control
-- Combine with any LLM eval framework or custom evals (agnostic by design)
-- Integrate any agent by implementing just one `call()` method
-- Available in Python, TypeScript and Go with comprehensive testing capabilities
+## 3. COMPREHENSIVE TESTING PHASE SUMMARY
 
-**Success Criteria**:
-- [ ] LangWatch Scenario installed and configured properly
-- [ ] Agent adapter implementation created for our LangGraph agent
-- [ ] Multiple scenario tests created covering edge cases and user interactions
-- [ ] Simulation-based testing executed with real user behavior simulation
-- [ ] Judge agents evaluate conversation quality with custom criteria
-- [ ] Performance metrics captured across different scenarios
-- [ ] Test results integrated with overall testing pipeline
-- [ ] Scenario test reports generated for analysis
+**NEW TESTING SEQUENCE** (Following TDD Principles):
+1. **Phase 3.1**: Unit Testing & Component Validation
+2. **Phase 3.2**: Multiple Agent Pytests & Type Validation ⭐ **NEW**
+3. **Phase 3.3**: LangWatch Scenario Testing & Agent Simulation ⭐ **MOVED HERE**  
+4. **Phase 3.4**: Graph Compilation & Import Validation
+5. **Phase 3.5**: LangGraph Server Testing & Real Execution
+6. **Phase 3.6**: API Integration & End-to-End Validation
 
-**Installation & Setup**:
-```bash
-# Install LangWatch Scenario framework
-cd /backend_gen
-pip install langwatch-scenario pytest
+This sequence ensures **code quality and agent behavior validation BEFORE server integration**, following Test-Driven Development principles where comprehensive testing precedes deployment.
 
-# Verify installation
-python -c "import scenario; print('LangWatch Scenario installed successfully')"
-
-# Set up environment variables for LangWatch (optional but recommended for visualization)
-echo "LANGWATCH_API_KEY=your-api-key-here" >> .env
-echo "OPENAI_API_KEY=your-openai-key-here" >> .env  # Required for user simulation
-
-# Configure scenario defaults
-python -c "
-import scenario
-scenario.configure(
-    default_model='openai/gpt-4.1-mini',  # For user simulation
-    cache_key='healthcare-coordination-tests',  # For repeatable tests
-    verbose=True  # Show detailed simulation output
-)
-print('LangWatch Scenario configured')
-"
-```
-
-**Agent Adapter Implementation**:
-```bash
-# Create LangWatch Scenario adapter for our LangGraph agent
-cat > tests/test_scenario_healthcare_coordination.py << 'EOF'
-import pytest
-import scenario
-import asyncio
-import json
-from typing import Dict, Any, List
-from agent.graph import graph
-
-# Configure scenario with appropriate settings
-scenario.configure(
-    default_model="openai/gpt-4.1-mini",
-    cache_key="healthcare-coordination-v1",
-    verbose=True
-)
-
-class HealthcareCoordinationAgent(scenario.AgentAdapter):
-    """LangWatch Scenario adapter for our Healthcare Coordination LangGraph agent"""
-    
-    def __init__(self):
-        self.graph = graph
-        
-    async def call(self, input: scenario.AgentInput) -> scenario.AgentReturnTypes:
-        """
-        Adapter method that LangWatch Scenario calls to interact with our agent.
-        Converts scenario input to LangGraph format and back.
-        """
-        # Convert scenario messages to our state format
-        state = {
-            "messages": input.messages,
-            "patient_info": None,
-            "medication_assessment": None,
-            "specialist_coordination": None,
-            "care_plan": None,
-            "care_coordination_plan": None,
-            "provider_notifications": None,
-            "errors": None
-        }
-        
-        try:
-            # Execute our LangGraph agent
-            result = await self.graph.ainvoke(state)
-            
-            # Extract the final response message
-            if result.get("messages") and len(result["messages"]) > 0:
-                final_message = result["messages"][-1]
-                if isinstance(final_message, dict) and "content" in final_message:
-                    return final_message["content"]
-                else:
-                    return str(final_message)
-            
-            # Fallback: return care coordination plan if available
-            if result.get("care_coordination_plan"):
-                return f"Care Coordination Plan Generated:\n{result['care_coordination_plan']}"
-                
-            return "Healthcare coordination assessment completed."
-            
-        except Exception as e:
-            return f"Error in healthcare coordination: {str(e)}"
-
-# Test Scenarios for Healthcare Coordination System
-
-@pytest.mark.agent_test
-@pytest.mark.asyncio
-async def test_routine_checkup_coordination():
-    """Test coordination for a routine patient checkup scenario"""
-    
-    result = await scenario.run(
-        name="routine_checkup_coordination",
-        description="""
-            A 45-year-old patient needs coordination for their annual physical exam.
-            They have diabetes and hypertension, take multiple medications,
-            and need specialist follow-ups. The system should coordinate their care
-            efficiently while ensuring medication safety and proper specialist referrals.
-        """,
-        agents=[
-            HealthcareCoordinationAgent(),
-            scenario.UserSimulatorAgent(),
-            scenario.JudgeAgent(
-                criteria=[
-                    "Agent should gather comprehensive patient information",
-                    "Agent should identify medication interaction risks",
-                    "Agent should coordinate appropriate specialist referrals",
-                    "Agent should create a clear care coordination plan",
-                    "Agent should NOT ask redundant questions about already provided information",
-                    "Agent should prioritize urgent health concerns appropriately"
-                ]
-            ),
-        ],
-        max_turns=8,  # Allow sufficient interaction for complex coordination
-        set_id="healthcare-coordination-tests",
-    )
-    
-    assert result.success, f"Routine checkup coordination failed: {result.failure_reason}"
-
-@pytest.mark.agent_test  
-@pytest.mark.asyncio
-async def test_emergency_coordination_scenario():
-    """Test coordination for an emergency healthcare scenario"""
-    
-    result = await scenario.run(
-        name="emergency_coordination",
-        description="""
-            A 68-year-old patient presents with chest pain and shortness of breath.
-            They have a history of heart disease and are on blood thinners.
-            The system must coordinate urgent care while managing medication risks
-            and ensuring rapid specialist consultation.
-        """,
-        agents=[
-            HealthcareCoordinationAgent(),
-            scenario.UserSimulatorAgent(),
-            scenario.JudgeAgent(
-                criteria=[
-                    "Agent should recognize the urgency of chest pain symptoms",
-                    "Agent should prioritize emergency specialist consultation", 
-                    "Agent should flag critical medication interactions with blood thinners",
-                    "Agent should create urgent care coordination plan",
-                    "Agent should NOT delay care with unnecessary questions",
-                    "Agent should ensure emergency protocols are followed"
-                ]
-            ),
-        ],
-        max_turns=6,  # Shorter for emergency scenarios
-        script=[
-            scenario.user("I'm having severe chest pain and can't breathe well"),
-            scenario.agent(),  # Let agent respond to emergency
-            scenario.user(),   # User provides more details
-            scenario.agent(),  # Agent coordinates emergency care
-            scenario.judge(),  # Evaluate emergency response
-        ],
-        set_id="healthcare-coordination-tests",
-    )
-    
-    assert result.success, f"Emergency coordination failed: {result.failure_reason}"
-
-@pytest.mark.agent_test
-@pytest.mark.asyncio
-async def test_complex_medication_management():
-    """Test medication management for complex polypharmacy scenario"""
-    
-    result = await scenario.run(
-        name="complex_medication_management", 
-        description="""
-            An elderly patient is taking 12 different medications from multiple specialists.
-            They're experiencing side effects and potential drug interactions.
-            The system should coordinate medication review, identify interactions,
-            and work with specialists to optimize their medication regimen.
-        """,
-        agents=[
-            HealthcareCoordinationAgent(),
-            scenario.UserSimulatorAgent(),
-            scenario.JudgeAgent(
-                criteria=[
-                    "Agent should perform comprehensive medication review",
-                    "Agent should identify potential drug interactions", 
-                    "Agent should coordinate with prescribing specialists",
-                    "Agent should prioritize medication safety",
-                    "Agent should create medication optimization plan",
-                    "Agent should address patient concerns about side effects"
-                ]
-            ),
-        ],
-        max_turns=10,  # Extended for complex medication coordination
-        set_id="healthcare-coordination-tests",
-    )
-    
-    assert result.success, f"Medication management coordination failed: {result.failure_reason}"
-
-# Advanced Scenario with Custom Evaluation
-def check_medication_safety_protocols(state: scenario.ScenarioState):
-    """Custom assertion to check if medication safety protocols were followed"""
-    conversation = " ".join([msg.get("content", "") for msg in state.messages])
-    
-    # Check for key medication safety indicators
-    safety_checks = [
-        "drug interaction" in conversation.lower(),
-        "allergy" in conversation.lower() or "allergic" in conversation.lower(), 
-        "dosage" in conversation.lower(),
-        "side effect" in conversation.lower()
-    ]
-    
-    assert any(safety_checks), "Agent did not perform adequate medication safety screening"
-
-@pytest.mark.agent_test
-@pytest.mark.asyncio
-async def test_medication_safety_protocols():
-    """Test that medication safety protocols are properly followed"""
-    
-    result = await scenario.run(
-        name="medication_safety_protocols",
-        description="""
-            A patient is starting a new medication that has potential interactions
-            with their existing medications. The system must follow proper safety
-            protocols before approving the new medication.
-        """,
-        agents=[
-            HealthcareCoordinationAgent(),
-            scenario.UserSimulatorAgent(),
-        ],
-        script=[
-            scenario.user("My doctor wants to start me on a new blood pressure medication"),
-            scenario.agent(),  # Agent responds
-            scenario.user(),   # User provides medication list  
-            scenario.agent(),  # Agent analyzes safety
-            check_medication_safety_protocols,  # Custom safety check
-            scenario.succeed(),  # End successfully if safety checks pass
-        ],
-        set_id="healthcare-coordination-tests",
-    )
-    
-    assert result.success, f"Medication safety protocols failed: {result.failure_reason}"
-EOF
-```
-
-**Execution Commands**:
-```bash
-# Run all LangWatch Scenario tests
-cd /backend_gen
-python -m pytest tests/test_scenario_healthcare_coordination.py -v -s --tb=short
-
-# Run with debug mode for step-by-step interaction
-python -m pytest tests/test_scenario_healthcare_coordination.py::test_routine_checkup_coordination -v -s --debug
-
-# Run specific scenario with cache busting
-SCENARIO_CACHE_KEY="new-test-run" python -m pytest tests/test_scenario_healthcare_coordination.py -v -s
-```
-
-**LangWatch Scenario Success Criteria**:
-- [ ] **Installation**: LangWatch Scenario package installed and configured
-- [ ] **Agent Adapter**: Healthcare coordination agent successfully adapted for scenario testing
-- [ ] **Basic Scenarios**: All core healthcare coordination scenarios pass (routine, emergency, medication)
-- [ ] **Custom Evaluations**: Custom assertion functions work for domain-specific validation
-- [ ] **Judge Agents**: AI judges properly evaluate conversation quality against healthcare criteria
-- [ ] **User Simulation**: Realistic user behavior simulation covers various patient types and situations
-- [ ] **Integration**: Scenario tests integrate with existing test pipeline and CI/CD
-- [ ] **Cache Management**: Deterministic testing with proper cache key management for repeatability
-
-**Benefits of LangWatch Scenario Testing**:
-1. **Real User Simulation**: Tests agent behavior with realistic user interactions instead of fixed test cases
-2. **Multi-turn Conversations**: Validates complex conversational flows that unit tests can't capture  
-3. **Edge Case Coverage**: Automatically discovers edge cases through varied user simulation
-4. **Quality Evaluation**: AI judges provide sophisticated evaluation beyond simple assertion checks
-5. **Performance Validation**: Measures real-world performance under different interaction patterns
-6. **Domain-Specific Testing**: Healthcare-specific scenarios validate medical coordination workflows
-
-This comprehensive scenario testing phase ensures our healthcare coordination system performs reliably across diverse real-world situations, handling both common cases and challenging edge scenarios with appropriate quality and safety measures.
+**Benefits of New Testing Sequence**:
+- **Earlier Error Detection**: Issues caught in agent-level testing before server complications
+- **Behavioral Validation**: LangWatch scenarios verify agent behavior in realistic conditions
+- **Type Safety**: Comprehensive type validation prevents runtime type errors
+- **Confidence Building**: Each agent thoroughly tested before integration
+- **Faster Debugging**: Problems isolated to specific agents rather than complex server interactions
 
 ---
+
+## 4. LANGGRAPH DEVELOPMENT PATTERNS & BEST PRACTICES
+
+### Core Development Patterns
+
+**LLM Configuration Pattern** (Critical - TIP #012):
+```python
+from agent.configuration import Configuration
+from langchain_core.runnables import RunnableConfig
+
+def agent_function(state: OverallState, config: RunnableConfig) -> dict:
+    configurable = Configuration.from_runnable_config(config)
+    llm = ChatGoogleGenerativeAI(
+        model=configurable.answer_model,  # Use configured model
+        temperature=0,
+        api_key=os.getenv("GEMINI_API_KEY")
+    )
+```
+
+**Import Requirements** (Critical - TIP #006):
+```python
+# ✅ CORRECT - Absolute imports (works in langgraph dev)
+from agent.nodes.node_name import function_name
+
+# ❌ WRONG - Relative imports (fails in langgraph dev)
+from .nodes.node_name import function_name
+```
+
+**Message Handling Pattern** (Critical - TIP #013 & #014):
+```python
+# Handle both LangChain objects and dictionaries
+def process_message(message):
+    if hasattr(message, 'content'):
+        content = message.content  # LangChain message object
+    elif isinstance(message, dict):
+        content = message.get("content")  # Dictionary message
+    else:
+        content = str(message)
+    
+    # Always use "assistant" role, never "agent"
+    return {"role": "assistant", "content": content}
+```
+
+### State Management Patterns
+
+**Safe State Access** (Critical - TIP #010):
+```python
+# Always check for None before operations
+existing_errors = state.get("errors") or []
+messages = state.get("messages") or []
+```
+
+**Proper State Updates**:
+```python
+# Return state updates as dictionary
+return {
+    "messages": updated_messages,
+    "field_name": new_value,
+    "current_step": "step_completed"
+}
+```
+
+### Testing Strategies
+
+**Real LLM Testing vs Mock Testing**:
+- Unit tests can use mocks for speed
+- Integration tests MUST use real LLM calls
+- Always log LLM conversations for debugging
+- Test with real API keys in CI/CD pipeline
+
+**Error Prevention Checklist**:
+- [ ] Use absolute imports in graph.py
+- [ ] Use Configuration.from_runnable_config() 
+- [ ] Handle both LangChain objects and dictionaries in message processing
+- [ ] Use "assistant" role, never "agent" role
+- [ ] Test graph loading before server startup
+- [ ] Include fallback responses for LLM failures
+
+---
+
+## 5. CRITICAL ERROR PATTERNS & SOLUTIONS
+
+### Import Error Prevention (TIP #006)
+```bash
+# Test imports before server
+python -c "from agent.graph import graph; print('✅ Graph imports successfully')"
+```
+
+### Configuration Error Prevention (TIP #012)
+```python
+# Always use configuration, never hardcode models
+configurable = Configuration.from_runnable_config(config)
+llm = ChatGoogleGenerativeAI(model=configurable.answer_model)
+```
+
+### Message Error Prevention (TIP #013 & #014)
+```python
+# Handle message types properly
+if hasattr(message, 'content'):
+    content = message.content
+else:
+    content = message.get("content", "")
+
+# Use correct message roles
+{"role": "assistant", "content": content}  # ✅ Correct
+{"role": "agent", "content": content}      # ❌ Wrong
+```
+
+## 6. AUTONOMOUS EXECUTION REQUIREMENTS
+
+### Operational Parameters
+- **Full Autonomy**: No user confirmation required after initial start
+- **State Tracking**: All progress tracked through file system
+- **Error Handling**: Self-correcting with learning documentation
+- **Completion Standard**: Production-ready code that passes all tests
+- **Learning Protocol**: Knowledge accumulation in `/docs/tips.md`
+
+### Success Metrics
+- [ ] All test phases complete successfully
+- [ ] Real LLM execution verified
+- [ ] No critical errors in server startup
+- [ ] Production deployment ready
+- [ ] Knowledge base updated with new patterns
 
 ## 3. CORE PRINCIPLES & NON-NEGOTIABLES
 

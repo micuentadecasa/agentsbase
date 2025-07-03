@@ -3,6 +3,7 @@ node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/coverage/
+backend/backend_gen/
 .DS_Store
 *.local
 
